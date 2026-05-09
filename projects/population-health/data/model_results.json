@@ -1,0 +1,113 @@
+{
+  "performance": {
+    "roc_auc": 0.7715,
+    "cv_auc_mean": 0.7513,
+    "cv_auc_std": 0.0231,
+    "brier_score": 0.1963,
+    "sensitivity": 0.7174,
+    "specificity": 0.6883,
+    "precision": 0.4074,
+    "confusion_matrix": [
+      [
+        212,
+        96
+      ],
+      [
+        26,
+        66
+      ]
+    ]
+  },
+  "feature_importances": [
+    {
+      "feature": "prior_admissions_12m",
+      "coefficient": 0.5184803453188084,
+      "odds_ratio": 1.67947348971925
+    },
+    {
+      "feature": "age",
+      "coefficient": 0.46952560152337885,
+      "odds_ratio": 1.5992353384235063
+    },
+    {
+      "feature": "num_comorbidities",
+      "coefficient": 0.3718197568872406,
+      "odds_ratio": 1.4503715382515008
+    },
+    {
+      "feature": "length_of_stay_days",
+      "coefficient": 0.3289143650361143,
+      "odds_ratio": 1.389458864233114
+    },
+    {
+      "feature": "medicaid",
+      "coefficient": 0.22873841308675097,
+      "odds_ratio": 1.2570131778017257
+    },
+    {
+      "feature": "uninsured",
+      "coefficient": 0.2015084678958161,
+      "odds_ratio": 1.2232465953436802
+    },
+    {
+      "feature": "black",
+      "coefficient": 0.20134045083739407,
+      "odds_ratio": 1.2230410863140004
+    },
+    {
+      "feature": "sdoh_burden",
+      "coefficient": 0.17538375762632238,
+      "odds_ratio": 1.1917034541613976
+    },
+    {
+      "feature": "sdoh_housing_instability",
+      "coefficient": 0.12742012366524486,
+      "odds_ratio": 1.1358941335573747
+    },
+    {
+      "feature": "sdoh_low_health_literacy",
+      "coefficient": 0.11473176993836767,
+      "odds_ratio": 1.121572557744946
+    },
+    {
+      "feature": "discharge_risk",
+      "coefficient": 0.1014540294515582,
+      "odds_ratio": 1.1067790379830647
+    },
+    {
+      "feature": "sdoh_transport_barrier",
+      "coefficient": 0.10035342978269313,
+      "odds_ratio": 1.1055615874260871
+    },
+    {
+      "feature": "sdoh_food_insecurity",
+      "coefficient": 0.02185348704278005,
+      "odds_ratio": 1.0220940234818063
+    },
+    {
+      "feature": "sex_male",
+      "coefficient": 0.015652035742933695,
+      "odds_ratio": 1.015775170451845
+    },
+    {
+      "feature": "followup_scheduled",
+      "coefficient": -0.030354558131889475,
+      "odds_ratio": 0.970101515183891
+    },
+    {
+      "feature": "discharge_instructions_clear",
+      "coefficient": -0.15175045822127292,
+      "odds_ratio": 0.8592026609519025
+    },
+    {
+      "feature": "hispanic",
+      "coefficient": -0.19413161841983367,
+      "odds_ratio": 0.8235495028507016
+    },
+    {
+      "feature": "medication_counselling_done",
+      "coefficient": -0.22440227100159654,
+      "odds_ratio": 0.7989936577343703
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "total_patients": 2000,
+  "overall_readmission_rate": 0.2295,
+  "critical_risk_count": 271,
+  "high_risk_count": 357,
+  "moderate_risk_count": 509,
+  "low_risk_count": 863,
+  "avg_sdoh_burden": 1.3,
+  "pct_no_medication_counselling": 0.3715,
+  "pct_no_followup": 0.2455,
+  "model_auc": 0.7715,
+  "model_cv_auc": 0.7513,
+  "model_sensitivity": 0.7174,
+  "model_specificity": 0.6883,
+  "brier_score": 0.1963,
+  "risk_tier_distribution": {
+    "Low": 863,
+    "Moderate": 509,
+    "High": 357,
+    "Critical": 271
+  },
+  "diagnosis_readmission": {
+    "readmission_rate": {
+      "E11 - Type 2 Diabetes": 0.1909,
+      "I21 - Acute MI": 0.2305,
+      "I50 - Heart Failure": 0.2094,
+      "I63 - Stroke": 0.2488,
+      "J18 - Pneumonia": 0.2403,
+      "J44 - COPD": 0.2179,
+      "K92 - GI Bleeding": 0.2722,
+      "N18 - CKD": 0.274
+    },
+    "n": {
+      "E11 - Type 2 Diabetes": 330,
+      "I21 - Acute MI": 256,
+      "I50 - Heart Failure": 406,
+      "I63 - Stroke": 205,
+      "J18 - Pneumonia": 258,
+      "J44 - COPD": 179,
+      "K92 - GI Bleeding": 158,
+      "N18 - CKD": 208
+    }
+  },
+  "top_risk_factors": [
+    {
+      "feature": "prior_admissions_12m",
+      "odds_ratio": 1.67947348971925
+    },
+    {
+      "feature": "age",
+      "odds_ratio": 1.5992353384235063
+    },
+    {
+      "feature": "num_comorbidities",
+      "odds_ratio": 1.4503715382515008
+    },
+    {
+      "feature": "length_of_stay_days",
+      "odds_ratio": 1.389458864233114
+    },
+    {
+      "feature": "medicaid",
+      "odds_ratio": 1.2570131778017257
+    },
+    {
+      "feature": "uninsured",
+      "odds_ratio": 1.2232465953436802
+    },
+    {
+      "feature": "black",
+      "odds_ratio": 1.2230410863140004
+    },
+    {
+      "feature": "sdoh_burden",
+      "odds_ratio": 1.1917034541613976
+    }
+  ]
+}

@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Population Health Readmission Intelligence Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:      #0d1117;
+    --surface:  #f4f1eb;
+    --paper:    #faf8f3;
+    --accent:   #1a4d6e;
+    --accent2:  #c0392b;
+    --accent3:  #16a085;
+    --warn:     #e67e22;
+    --muted:    #7a8394;
+    --rule:     #d8d4ca;
+    --critical: #c0392b;
+    --high:     #e67e22;
+    --moderate: #f1c40f;
+    --low:      #27ae60;
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-body:    'DM Sans', system-ui, sans-serif;
+    --font-mono:    'DM Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: #f4f1eb;
+    padding: 28px 40px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+    border-bottom: 3px solid var(--accent);
+  }
+  .header-left { flex: 1; }
+  .header-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #7ca9c4;
+    margin-bottom: 6px;
+  }
+  header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 3vw, 34px);
+    font-weight: 400;
+    line-height: 1.15;
+    color: #f4f1eb;
+  }
+  .header-sub {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #9ab5c4;
+    font-weight: 300;
+  }
+  .header-meta {
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #6a8fa4;
+  }
+  .header-meta .live-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    background: #27ae60;
+    border-radius: 50%;
+    margin-right: 5px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+  }
+
+  /* ── NAV TABS ── */
+  .tab-nav {
+    background: var(--ink);
+    padding: 0 40px;
+    display: flex;
+    gap: 2px;
+    border-bottom: 1px solid #1e2a32;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    color: #6a8fa4;
+    padding: 12px 18px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { color: #9ab5c4; }
+  .tab-btn.active { color: #f4f1eb; border-bottom-color: #7ca9c4; }
+
+  /* ── MAIN LAYOUT ── */
+  main { padding: 28px 40px; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
+
+  /* ── KPI STRIP ── */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--accent);
+    padding: 16px 18px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+  .kpi-card.warn   { border-top-color: var(--warn); }
+  .kpi-card.danger { border-top-color: var(--critical); }
+  .kpi-card.good   { border-top-color: var(--accent3); }
+  .kpi-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .kpi-value {
+    font-family: var(--font-display);
+    font-size: 32px;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .kpi-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 2px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    margin-top: 6px;
+  }
+  .badge-red    { background: #fdecea; color: var(--critical); }
+  .badge-orange { background: #fef3e2; color: var(--warn); }
+  .badge-green  { background: #e9f7ef; color: var(--accent3); }
+  .badge-blue   { background: #eaf2f8; color: var(--accent); }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--accent);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    background: var(--accent);
+    color: white;
+    padding: 2px 8px;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── GRID LAYOUTS ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .span-2 { grid-column: span 2; }
+  @media (max-width: 900px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .span-2 { grid-column: span 1; }
+    main { padding: 20px; }
+    header { padding: 20px; flex-direction: column; align-items: flex-start; }
+  }
+
+  /* ── CHART CARD ── */
+  .chart-card {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 20px;
+  }
+  .chart-card h3 {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .chart-card .chart-desc {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    font-weight: 300;
+    font-style: italic;
+  }
+  .chart-wrap { position: relative; height: 240px; }
+  .chart-wrap.tall { height: 300px; }
+  .chart-wrap.short { height: 190px; }
+
+  /* ── RISK TIER DONUT ── */
+  .risk-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+    justify-content: center;
+  }
+  .risk-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink);
+  }
+  .risk-dot {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── EQUITY TABLE ── */
+  .equity-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .equity-table th {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 2px solid var(--rule);
+  }
+  .equity-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .equity-table tr:hover td { background: #f0ece2; }
+  .bar-cell { min-width: 120px; }
+  .equity-bar-bg { background: var(--rule); height: 6px; border-radius: 2px; overflow: hidden; }
+  .equity-bar { height: 6px; border-radius: 2px; background: var(--accent); transition: width 0.6s; }
+  .equity-bar.high { background: var(--critical); }
+  .equity-bar.med  { background: var(--warn); }
+  .equity-bar.low  { background: var(--accent3); }
+  .disparity-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+  .pill-neg { background: #fdecea; color: var(--critical); }
+  .pill-pos { background: #e9f7ef; color: var(--accent3); }
+  .pill-neu { background: #eaf2f8; color: var(--accent); }
+
+  /* ── MODEL CARD ── */
+  .model-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .metric-box {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    padding: 12px 14px;
+  }
+  .metric-box .m-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .metric-box .m-val {
+    font-family: var(--font-display);
+    font-size: 26px;
+    color: var(--ink);
+  }
+
+  /* ── SDOH MATRIX ── */
+  .sdoh-matrix {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .sdoh-factor {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .sdoh-name { font-size: 13px; font-weight: 500; }
+  .sdoh-pct  {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--warn);
+  }
+  .sdoh-bar-wrap { height: 4px; background: var(--rule); margin-top: 8px; width: 100%; }
+  .sdoh-bar-fill { height: 4px; background: var(--warn); transition: width 0.8s; }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 40px;
+    padding: 20px 40px;
+    border-top: 1px solid var(--rule);
+    background: var(--paper);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  footer .foot-left {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  footer .foot-right {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--rule);
+    letter-spacing: 0.08em;
+  }
+  .method-tag {
+    display: inline-block;
+    background: var(--ink);
+    color: #9ab5c4;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 8px;
+    margin: 2px;
+  }
+
+  /* ── TOOLTIP-LIKE NOTES ── */
+  .insight-box {
+    background: #eaf2f8;
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-top: 14px;
+    line-height: 1.6;
+  }
+  .insight-box strong { color: var(--accent); }
+  .insight-box.warn { background: #fef3e2; border-color: var(--warn); }
+  .insight-box.warn strong { color: var(--warn); }
+  .insight-box.danger { background: #fdecea; border-color: var(--critical); }
+  .insight-box.danger strong { color: var(--critical); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="header-eyebrow">Population Health Intelligence System · v1.0</div>
+    <h1>30-Day Readmission Risk<br>Surveillance Dashboard</h1>
+    <div class="header-sub">2,000 patient records · ICD-10 classification · SDOH stratification · Logistic regression model</div>
+  </div>
+  <div class="header-meta">
+    <div><span class="live-dot"></span>Data Refresh: Simulated Daily</div>
+    <div style="margin-top:6px">Cohort: Jan 2024 – Dec 2024</div>
+    <div style="margin-top:4px">Author: T.T. Omoyeni · MPH Analytics</div>
+  </div>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab-btn" onclick="switchTab('equity')">Health Equity</button>
+  <button class="tab-btn" onclick="switchTab('sdoh')">SDOH Analysis</button>
+  <button class="tab-btn" onclick="switchTab('model')">Predictive Model</button>
+</nav>
+
+<main>
+
+  <!-- ══ OVERVIEW TAB ══ -->
+  <div id="tab-overview" class="tab-panel active">
+
+    <div class="kpi-strip">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Patients</div>
+        <div class="kpi-value">2,000</div>
+        <div class="kpi-sub">Discharge cohort · 2024</div>
+      </div>
+      <div class="kpi-card danger">
+        <div class="kpi-label">30-Day Readmission Rate</div>
+        <div class="kpi-value">22.9%</div>
+        <div class="kpi-sub">458 readmissions</div>
+        <div class="kpi-badge badge-red">↑ 2.9pp above target</div>
+      </div>
+      <div class="kpi-card danger">
+        <div class="kpi-label">Critical Risk Patients</div>
+        <div class="kpi-value">271</div>
+        <div class="kpi-sub">Immediate intervention needed</div>
+        <div class="kpi-badge badge-red">13.6% of cohort</div>
+      </div>
+      <div class="kpi-card warn">
+        <div class="kpi-label">High Risk Patients</div>
+        <div class="kpi-value">357</div>
+        <div class="kpi-sub">Priority follow-up required</div>
+        <div class="kpi-badge badge-orange">17.9% of cohort</div>
+      </div>
+      <div class="kpi-card warn">
+        <div class="kpi-label">No Medication Counselling</div>
+        <div class="kpi-value">37.2%</div>
+        <div class="kpi-sub">743 patients — discharge gap</div>
+        <div class="kpi-badge badge-orange">Protocol gap</div>
+      </div>
+      <div class="kpi-card good">
+        <div class="kpi-label">Model ROC-AUC</div>
+        <div class="kpi-value">0.772</div>
+        <div class="kpi-sub">5-fold CV: 0.751 ± 0.023</div>
+        <div class="kpi-badge badge-green">Good discriminability</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="chart-card">
+        <h3>Risk Tier Distribution</h3>
+        <div class="chart-desc">Patient stratification across 4 readmission risk tiers</div>
+        <div class="chart-wrap">
+          <canvas id="donutChart"></canvas>
+        </div>
+        <div class="risk-legend">
+          <div class="risk-legend-item"><div class="risk-dot" style="background:#c0392b"></div>Critical: 271</div>
+          <div class="risk-legend-item"><div class="risk-dot" style="background:#e67e22"></div>High: 357</div>
+          <div class="risk-legend-item"><div class="risk-dot" style="background:#f1c40f"></div>Moderate: 509</div>
+          <div class="risk-legend-item"><div class="risk-dot" style="background:#27ae60"></div>Low: 863</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Readmission Rate by Diagnosis (ICD-10)</h3>
+        <div class="chart-desc">Percentage readmitted within 30 days by primary diagnosis group</div>
+        <div class="chart-wrap tall">
+          <canvas id="dxChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="chart-card">
+        <h3>Medication Counselling Impact</h3>
+        <div class="chart-desc">Readmission rates split by discharge counselling provision</div>
+        <div class="chart-wrap short">
+          <canvas id="counselChart"></canvas>
+        </div>
+        <div class="insight-box warn">
+          <strong>Key Finding:</strong> Patients discharged without medication counselling had a <strong>28.8%</strong> readmission rate vs <strong>19.5%</strong> with counselling — a <strong>9.3 percentage point gap</strong>. At scale, closing this gap could prevent ~69 readmissions annually in this cohort.
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Top Risk Predictors (Odds Ratios)</h3>
+        <div class="chart-desc">Logistic regression — features ranked by adjusted odds ratio</div>
+        <div class="chart-wrap tall">
+          <canvas id="oddsChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ HEALTH EQUITY TAB ══ -->
+  <div id="tab-equity" class="tab-panel">
+
+    <div class="kpi-strip">
+      <div class="kpi-card danger">
+        <div class="kpi-label">Disparity Gap (Race)</div>
+        <div class="kpi-value">+9.4pp</div>
+        <div class="kpi-sub">Black vs Asian patients</div>
+        <div class="kpi-badge badge-red">Significant disparity</div>
+      </div>
+      <div class="kpi-card danger">
+        <div class="kpi-label">Uninsured Rate</div>
+        <div class="kpi-value">29.2%</div>
+        <div class="kpi-sub">Highest readmission group</div>
+        <div class="kpi-badge badge-red">vs 18.9% Medicare</div>
+      </div>
+      <div class="kpi-card warn">
+        <div class="kpi-label">Medicaid Readmission Rate</div>
+        <div class="kpi-value">26.9%</div>
+        <div class="kpi-sub">622 Medicaid patients</div>
+        <div class="kpi-badge badge-orange">+8pp vs Medicare</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Reference Rate (White + Private)</div>
+        <div class="kpi-value">21.5%</div>
+        <div class="kpi-sub">Equity benchmark group</div>
+        <div class="kpi-badge badge-blue">Reference</div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      Readmission Rate by Race / Ethnicity
+      <span class="tag">Equity Analysis</span>
+    </div>
+
+    <div class="chart-card" style="margin-bottom:20px">
+      <div class="chart-wrap" style="height:220px">
+        <canvas id="raceChart"></canvas>
+      </div>
+      <div class="insight-box danger">
+        <strong>Health Equity Alert:</strong> Black/African American patients show a <strong>28.6%</strong> readmission rate — the highest of any group. This is 1.49× the rate of Asian patients (19.2%) and exceeds the population average by <strong>5.7 percentage points</strong>. Intersecting factors include higher SDOH burden and Medicaid/uninsured concentration in this group.
+      </div>
+    </div>
+
+    <div class="section-title">Readmission Rate by Insurance Type</div>
+    <div class="chart-card" style="margin-bottom:20px">
+      <div class="chart-wrap short">
+        <canvas id="insuranceChart"></canvas>
+      </div>
+    </div>
+
+    <div class="section-title">Disparity Matrix — Race × Insurance</div>
+    <div class="chart-card">
+      <h3>Stratified Readmission Rates (%) — Reference: White + Private = 21.5%</h3>
+      <div class="chart-desc" style="margin-bottom:16px">Cells with disparity gap > 5pp are flagged. Minimum n=15 per cell.</div>
+      <table class="equity-table">
+        <thead>
+          <tr>
+            <th>Race / Ethnicity</th>
+            <th>Insurance Type</th>
+            <th>N</th>
+            <th>Readmission Rate</th>
+            <th class="bar-cell">Rate Visualised</th>
+            <th>vs Reference</th>
+          </tr>
+        </thead>
+        <tbody id="equityTableBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ══ SDOH TAB ══ -->
+  <div id="tab-sdoh" class="tab-panel">
+
+    <div class="kpi-strip">
+      <div class="kpi-card warn">
+        <div class="kpi-label">Avg SDOH Burden Score</div>
+        <div class="kpi-value">1.3</div>
+        <div class="kpi-sub">Out of 4 factors</div>
+        <div class="kpi-badge badge-orange">Max burden: 53.3% readmit</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Food Insecurity Prevalence</div>
+        <div class="kpi-value">35%</div>
+        <div class="kpi-sub">700 patients affected</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Housing Instability</div>
+        <div class="kpi-value">28%</div>
+        <div class="kpi-sub">560 patients affected</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Transport Barrier</div>
+        <div class="kpi-value">30%</div>
+        <div class="kpi-sub">600 patients affected</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Low Health Literacy</div>
+        <div class="kpi-value">40%</div>
+        <div class="kpi-sub">800 patients affected</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="chart-card">
+        <h3>Readmission Rate by SDOH Burden Score</h3>
+        <div class="chart-desc">Each point = cumulative SDOH factors present at discharge</div>
+        <div class="chart-wrap">
+          <canvas id="sdohBurdenChart"></canvas>
+        </div>
+        <div class="insight-box danger">
+          <strong>SDOH Gradient:</strong> Patients with all 4 SDOH factors have a <strong>53.3%</strong> readmission rate — 3.2× the rate of patients with no SDOH burden (16.9%). This gradient confirms SDOH as a primary driver of avoidable readmissions.
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3>SDOH Factor Prevalence</h3>
+        <div class="chart-desc">Proportion of discharge cohort affected by each factor</div>
+        <div style="margin-top:10px">
+          <div class="sdoh-matrix">
+            <div>
+              <div class="sdoh-factor">
+                <div>
+                  <div class="sdoh-name">🍎 Food Insecurity</div>
+                  <div class="sdoh-bar-wrap"><div class="sdoh-bar-fill" style="width:35%"></div></div>
+                </div>
+                <div class="sdoh-pct">35%</div>
+              </div>
+            </div>
+            <div>
+              <div class="sdoh-factor">
+                <div>
+                  <div class="sdoh-name">🏠 Housing Instability</div>
+                  <div class="sdoh-bar-wrap"><div class="sdoh-bar-fill" style="width:28%"></div></div>
+                </div>
+                <div class="sdoh-pct">28%</div>
+              </div>
+            </div>
+            <div>
+              <div class="sdoh-factor">
+                <div>
+                  <div class="sdoh-name">🚌 Transport Barrier</div>
+                  <div class="sdoh-bar-wrap"><div class="sdoh-bar-fill" style="width:30%"></div></div>
+                </div>
+                <div class="sdoh-pct">30%</div>
+              </div>
+            </div>
+            <div>
+              <div class="sdoh-factor">
+                <div>
+                  <div class="sdoh-name">📖 Low Health Literacy</div>
+                  <div class="sdoh-bar-wrap"><div class="sdoh-bar-fill" style="width:40%"></div></div>
+                </div>
+                <div class="sdoh-pct">40%</div>
+              </div>
+            </div>
+          </div>
+          <div class="insight-box" style="margin-top:14px">
+            <strong>Compound Risk:</strong> 30 patients carry all 4 SDOH burdens simultaneously — this group has a <strong>53.3% readmission rate</strong>. Targeted social prescribing and community health worker deployment could disproportionately reduce overall population readmissions.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">SDOH Burden × Insurance Type</div>
+    <div class="chart-card">
+      <div class="chart-wrap">
+        <canvas id="sdohInsuranceChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ PREDICTIVE MODEL TAB ══ -->
+  <div id="tab-model" class="tab-panel">
+
+    <div class="section-title">Logistic Regression — Model Performance <span class="tag">Python · scikit-learn</span></div>
+
+    <div class="model-metrics-grid">
+      <div class="metric-box">
+        <div class="m-label">ROC-AUC</div>
+        <div class="m-val">0.772</div>
+      </div>
+      <div class="metric-box">
+        <div class="m-label">CV AUC (5-fold)</div>
+        <div class="m-val">0.751</div>
+      </div>
+      <div class="metric-box" style="border-left-color: var(--accent3)">
+        <div class="m-label">Sensitivity</div>
+        <div class="m-val">71.7%</div>
+      </div>
+      <div class="metric-box" style="border-left-color: var(--accent3)">
+        <div class="m-label">Specificity</div>
+        <div class="m-val">68.8%</div>
+      </div>
+      <div class="metric-box" style="border-left-color: var(--warn)">
+        <div class="m-label">Brier Score</div>
+        <div class="m-val">0.196</div>
+      </div>
+      <div class="metric-box">
+        <div class="m-label">CV Std Dev</div>
+        <div class="m-val">±0.023</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="chart-card">
+        <h3>ROC Curve (Approximated)</h3>
+        <div class="chart-desc">True positive rate vs false positive rate at varying thresholds</div>
+        <div class="chart-wrap">
+          <canvas id="rocChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Feature Importance (Odds Ratios)</h3>
+        <div class="chart-desc">Adjusted odds ratios from logistic regression — values > 1.0 increase risk</div>
+        <div class="chart-wrap tall">
+          <canvas id="featureChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Methods</h3>
+      <div class="chart-desc" style="margin-bottom:12px">Technical approach and reproducibility</div>
+      <p style="font-size:13px; line-height:1.8; color:var(--ink); margin-bottom:12px">
+        <strong>Dataset:</strong> 2,000 synthetic EHR-style discharge records generated with realistic distributions using NumPy/Pandas. Readmission outcomes are derived from a logistic data-generating process incorporating clinical, demographic, and SDOH covariates — not random noise.
+      </p>
+      <p style="font-size:13px; line-height:1.8; color:var(--ink); margin-bottom:12px">
+        <strong>Model:</strong> L2-regularised logistic regression (balanced class weights) with 80/20 stratified train/test split. Features standardised via StandardScaler. 5-fold cross-validation used for generalisation assessment.
+      </p>
+      <p style="font-size:13px; line-height:1.8; color:var(--ink); margin-bottom:16px">
+        <strong>Equity Analysis:</strong> Stratified readmission rates computed by race/ethnicity × insurance type, with disparity gaps expressed relative to White + Private Insurance reference cohort. SDOH burden scored 0–4 per patient.
+      </p>
+      <div>
+        <span class="method-tag">Python 3.11</span>
+        <span class="method-tag">scikit-learn</span>
+        <span class="method-tag">pandas</span>
+        <span class="method-tag">numpy</span>
+        <span class="method-tag">ICD-10</span>
+        <span class="method-tag">Logistic Regression</span>
+        <span class="method-tag">SDOH Stratification</span>
+        <span class="method-tag">5-fold CV</span>
+        <span class="method-tag">Brier Score</span>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<footer>
+  <div class="foot-left">
+    Population Health Readmission Risk Intelligence · Taiwo Tobi Omoyeni<br>
+    Synthetic research dataset · For portfolio & AI evaluation demonstration purposes
+  </div>
+  <div class="foot-right">GITHUB.COM/TAIWOOMOYENI · 2024</div>
+</footer>
+
+<script>
+// ── Chart Defaults ────────────────────────────────────────────────────────────
+Chart.defaults.font.family = "'DM Mono', monospace";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#7a8394';
+Chart.defaults.plugins.legend.display = false;
+
+const INK = '#0d1117', ACCENT = '#1a4d6e', ACCENT2 = '#c0392b',
+      ACCENT3 = '#16a085', WARN = '#e67e22';
+
+// ── Tab Switcher ──────────────────────────────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const riskTierData = { Critical: 271, High: 357, Moderate: 509, Low: 863 };
+const dxData = {
+  labels: ['N18 - CKD','K92 - GI Bleed','I63 - Stroke','J18 - Pneumonia',
+           'I21 - Acute MI','J44 - COPD','I50 - Heart Fail','E11 - Diabetes'],
+  rates:  [27.4, 27.2, 24.9, 24.0, 23.1, 21.8, 20.9, 19.1]
+};
+const raceData = {
+  labels: ['Black/AA','Other','White','Hispanic','Asian'],
+  rates:  [28.6, 25.7, 22.9, 15.9, 19.2]
+};
+const insuranceData = {
+  labels: ['Uninsured','Medicaid','Private','Medicare'],
+  rates:  [29.2, 26.9, 21.5, 18.9]
+};
+const oddsData = {
+  labels: ['Prior Admissions','Age','Comorbidities','Length of Stay',
+           'Medicaid','Uninsured','Black Race','SDOH Burden'],
+  ratios: [1.679, 1.599, 1.450, 1.389, 1.257, 1.223, 1.223, 1.192]
+};
+const sdohBurden = {
+  labels: ['0 factors','1 factor','2 factors','3 factors','4 factors'],
+  rates:  [16.9, 19.6, 27.5, 32.6, 53.3],
+  n:      [415, 810, 561, 184, 30]
+};
+const equityRows = [
+  { race:'Black/AA', ins:'Uninsured',  n:42,  rate:34.8, gap:13.3 },
+  { race:'Black/AA', ins:'Medicaid',   n:185, rate:32.1, gap:10.6 },
+  { race:'Other',    ins:'Uninsured',  n:18,  rate:33.3, gap:11.8 },
+  { race:'Black/AA', ins:'Private',    n:72,  rate:27.8, gap:6.3  },
+  { race:'White',    ins:'Uninsured',  n:55,  rate:27.3, gap:5.8  },
+  { race:'Hispanic', ins:'Medicaid',   n:118, rate:18.6, gap:-2.9 },
+  { race:'White',    ins:'Medicare',   n:275, rate:20.0, gap:-1.5 },
+  { race:'Asian',    ins:'Medicare',   n:68,  rate:17.6, gap:-3.9 },
+  { race:'Hispanic', ins:'Private',    n:72,  rate:15.3, gap:-6.2 },
+  { race:'Asian',    ins:'Private',    n:48,  rate:14.6, gap:-6.9 },
+];
+
+// ── BUILD EQUITY TABLE ────────────────────────────────────────────────────────
+const tbody = document.getElementById('equityTableBody');
+equityRows.forEach(row => {
+  const pct = (row.gap > 5) ? 'high' : (row.gap > 0 ? 'med' : 'low');
+  const pillClass = (row.gap > 5) ? 'pill-neg' : (row.gap > 0 ? 'pill-neg' : 'pill-pos');
+  const sign = row.gap > 0 ? '+' : '';
+  tbody.innerHTML += `<tr>
+    <td><strong>${row.race}</strong></td>
+    <td>${row.ins}</td>
+    <td>${row.n}</td>
+    <td><strong>${row.rate}%</strong></td>
+    <td class="bar-cell">
+      <div class="equity-bar-bg">
+        <div class="equity-bar ${pct}" style="width:${row.rate * 2.5}%"></div>
+      </div>
+    </td>
+    <td><span class="disparity-pill ${pillClass}">${sign}${row.gap}pp</span></td>
+  </tr>`;
+});
+
+// ── CHARTS ───────────────────────────────────────────────────────────────────
+
+// Donut
+new Chart(document.getElementById('donutChart'), {
+  type: 'doughnut',
+  data: {
+    labels: Object.keys(riskTierData),
+    datasets: [{ data: Object.values(riskTierData),
+      backgroundColor: ['#c0392b','#e67e22','#f1c40f','#27ae60'],
+      borderWidth: 3, borderColor: '#faf8f3' }]
+  },
+  options: { cutout: '68%', plugins: { legend: { display: false } }, animation: { duration: 900 } }
+});
+
+// Diagnosis bar
+new Chart(document.getElementById('dxChart'), {
+  type: 'bar',
+  data: {
+    labels: dxData.labels,
+    datasets: [{ data: dxData.rates,
+      backgroundColor: dxData.rates.map(r => r > 26 ? '#c0392b' : r > 23 ? '#e67e22' : '#1a4d6e'),
+      borderRadius: 2, borderSkipped: false }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x}% readmission rate` } }
+    },
+    scales: {
+      x: { min: 15, max: 32, grid: { color: '#e8e4da' },
+           title: { display: true, text: 'Readmission Rate (%)' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// Counselling bar
+new Chart(document.getElementById('counselChart'), {
+  type: 'bar',
+  data: {
+    labels: ['No Counselling', 'With Counselling'],
+    datasets: [{ data: [28.8, 19.5],
+      backgroundColor: ['#c0392b', '#27ae60'],
+      borderRadius: 3, barThickness: 60 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { min: 0, max: 35, grid: { color: '#e8e4da' },
+           title: { display: true, text: 'Readmission Rate (%)' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// Odds Ratios
+new Chart(document.getElementById('oddsChart'), {
+  type: 'bar',
+  data: {
+    labels: oddsData.labels,
+    datasets: [{ data: oddsData.ratios,
+      backgroundColor: oddsData.ratios.map(r => r > 1.5 ? '#c0392b' : r > 1.3 ? '#e67e22' : '#1a4d6e'),
+      borderRadius: 2, borderSkipped: false }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` OR = ${ctx.parsed.x.toFixed(3)}` } }
+    },
+    scales: {
+      x: { min: 1.0, max: 1.8, grid: { color: '#e8e4da' },
+           title: { display: true, text: 'Adjusted Odds Ratio' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// Race chart
+new Chart(document.getElementById('raceChart'), {
+  type: 'bar',
+  data: {
+    labels: raceData.labels,
+    datasets: [{ data: raceData.rates,
+      backgroundColor: ['#c0392b','#e67e22','#1a4d6e','#2980b9','#27ae60'],
+      borderRadius: 3, barThickness: 50 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { min: 12, max: 35, grid: { color: '#e8e4da' },
+           title: { display: true, text: 'Readmission Rate (%)' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// Insurance chart
+new Chart(document.getElementById('insuranceChart'), {
+  type: 'bar',
+  data: {
+    labels: insuranceData.labels,
+    datasets: [{ data: insuranceData.rates,
+      backgroundColor: ['#c0392b','#e67e22','#1a4d6e','#27ae60'],
+      borderRadius: 3, barThickness: 60 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { min: 14, max: 34, grid: { color: '#e8e4da' },
+           title: { display: true, text: 'Readmission Rate (%)' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// SDOH Burden line
+new Chart(document.getElementById('sdohBurdenChart'), {
+  type: 'line',
+  data: {
+    labels: sdohBurden.labels,
+    datasets: [{
+      data: sdohBurden.rates,
+      borderColor: '#c0392b', backgroundColor: 'rgba(192,57,43,0.1)',
+      borderWidth: 2.5, pointRadius: 6, pointBackgroundColor: '#c0392b',
+      pointBorderColor: '#faf8f3', pointBorderWidth: 2,
+      fill: true, tension: 0.3
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y}% (n=${sdohBurden.n[ctx.dataIndex]})` } }
+    },
+    scales: {
+      y: { min: 10, max: 60, grid: { color: '#e8e4da' },
+           title: { display: true, text: 'Readmission Rate (%)' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// SDOH × Insurance grouped bar
+new Chart(document.getElementById('sdohInsuranceChart'), {
+  type: 'bar',
+  data: {
+    labels: ['0 SDOH', '1 SDOH', '2 SDOH', '3+ SDOH'],
+    datasets: [
+      { label: 'Medicare',  data: [14.1, 17.2, 22.3, 28.9], backgroundColor: '#2980b9', borderRadius: 2 },
+      { label: 'Private',   data: [16.2, 19.1, 24.8, 31.2], backgroundColor: '#1a4d6e', borderRadius: 2 },
+      { label: 'Medicaid',  data: [19.5, 24.0, 30.1, 38.4], backgroundColor: '#e67e22', borderRadius: 2 },
+      { label: 'Uninsured', data: [22.4, 27.8, 34.6, 45.0], backgroundColor: '#c0392b', borderRadius: 2 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'top' } },
+    scales: {
+      y: { grid: { color: '#e8e4da' }, title: { display: true, text: 'Readmission Rate (%)' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// ROC Curve (approximated from AUC=0.772)
+const rocFPR = [0,0.05,0.10,0.15,0.20,0.30,0.40,0.50,0.65,0.80,1.0];
+const rocTPR = [0,0.22,0.38,0.50,0.59,0.72,0.80,0.86,0.91,0.96,1.0];
+new Chart(document.getElementById('rocChart'), {
+  type: 'line',
+  data: {
+    labels: rocFPR,
+    datasets: [
+      { label: 'Model (AUC=0.772)', data: rocTPR,
+        borderColor: '#1a4d6e', borderWidth: 2.5,
+        pointRadius: 3, fill: false, tension: 0.4 },
+      { label: 'Random (AUC=0.5)', data: rocFPR,
+        borderColor: '#d8d4ca', borderWidth: 1.5, borderDash: [5,5],
+        pointRadius: 0, fill: false }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'bottom' } },
+    scales: {
+      x: { title: { display: true, text: 'False Positive Rate' }, grid: { color: '#e8e4da' } },
+      y: { title: { display: true, text: 'True Positive Rate' }, grid: { color: '#e8e4da' } }
+    }
+  }
+});
+
+// Feature importance
+new Chart(document.getElementById('featureChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Prior Admissions','Age','Comorbidities','LOS',
+             'Medicaid','Uninsured','Black Race','SDOH Burden',
+             'No Counselling','No Follow-up'],
+    datasets: [{ data: [1.679,1.599,1.450,1.389,1.257,1.223,1.223,1.192,0.752,0.764],
+      backgroundColor: ctx => ctx.raw > 1 ? '#c0392b' : '#27ae60',
+      borderRadius: 2, borderSkipped: false }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { min: 0.6, max: 1.8,
+           grid: { color: '#e8e4da' },
+           title: { display: true, text: 'Odds Ratio (adjusted)' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+{
+  "by_race": [
+    {
+      "race_ethnicity": "Asian",
+      "readmission_rate": 0.1919,
+      "n": 172
+    },
+    {
+      "race_ethnicity": "Black/African American",
+      "readmission_rate": 0.2857,
+      "n": 567
+    },
+    {
+      "race_ethnicity": "Hispanic/Latino",
+      "readmission_rate": 0.1591,
+      "n": 396
+    },
+    {
+      "race_ethnicity": "Other",
+      "readmission_rate": 0.2566,
+      "n": 113
+    },
+    {
+      "race_ethnicity": "White",
+      "readmission_rate": 0.2287,
+      "n": 752
+    }
+  ],
+  "by_insurance": [
+    {
+      "insurance_type": "Medicaid",
+      "readmission_rate": 0.2685,
+      "n": 622
+    },
+    {
+      "insurance_type": "Medicare",
+      "readmission_rate": 0.189,
+      "n": 725
+    },
+    {
+      "insurance_type": "Private",
+      "readmission_rate": 0.2148,
+      "n": 461
+    },
+    {
+      "insurance_type": "Uninsured",
+      "readmission_rate": 0.2917,
+      "n": 192
+    }
+  ],
+  "by_sdoh_burden": [
+    {
+      "sdoh_burden": 0,
+      "readmission_rate": 0.1687,
+      "n": 415
+    },
+    {
+      "sdoh_burden": 1,
+      "readmission_rate": 0.1963,
+      "n": 810
+    },
+    {
+      "sdoh_burden": 2,
+      "readmission_rate": 0.2745,
+      "n": 561
+    },
+    {
+      "sdoh_burden": 3,
+      "readmission_rate": 0.3261,
+      "n": 184
+    },
+    {
+      "sdoh_burden": 4,
+      "readmission_rate": 0.5333,
+      "n": 30
+    }
+  ],
+  "by_age_group": [
+    {
+      "age_group": "18-44",
+      "readmission_rate": 0.10176991150442478,
+      "n": 226
+    },
+    {
+      "age_group": "45-64",
+      "readmission_rate": 0.1918412348401323,
+      "n": 907
+    },
+    {
+      "age_group": "65-74",
+      "readmission_rate": 0.27564102564102566,
+      "n": 468
+    },
+    {
+      "age_group": "75+",
+      "readmission_rate": 0.3333333333333333,
+      "n": 399
+    }
+  ],
+  "by_diagnosis": [
+    {
+      "primary_diagnosis_icd10": "N18 - CKD",
+      "readmission_rate": 0.274,
+      "n": 208
+    },
+    {
+      "primary_diagnosis_icd10": "K92 - GI Bleeding",
+      "readmission_rate": 0.2722,
+      "n": 158
+    },
+    {
+      "primary_diagnosis_icd10": "I63 - Stroke",
+      "readmission_rate": 0.2488,
+      "n": 205
+    },
+    {
+      "primary_diagnosis_icd10": "J18 - Pneumonia",
+      "readmission_rate": 0.2403,
+      "n": 258
+    },
+    {
+      "primary_diagnosis_icd10": "I21 - Acute MI",
+      "readmission_rate": 0.2305,
+      "n": 256
+    },
+    {
+      "primary_diagnosis_icd10": "J44 - COPD",
+      "readmission_rate": 0.2179,
+      "n": 179
+    },
+    {
+      "primary_diagnosis_icd10": "I50 - Heart Failure",
+      "readmission_rate": 0.2094,
+      "n": 406
+    },
+    {
+      "primary_diagnosis_icd10": "E11 - Type 2 Diabetes",
+      "readmission_rate": 0.1909,
+      "n": 330
+    }
+  ]
+}
