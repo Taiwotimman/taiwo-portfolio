@@ -1,8 +1,5 @@
 # Taiwo Tobi Omoyeni — Health Data Analytics Portfolio
 
-> Population Health Informaticist · Health Data Analyst · Clinical Researcher  
-> Live portfolio with embedded interactive project dashboards.
-
 ## 🌐 Live Site
 
 **[https://Taiwotimman.github.io/taiwo-portfolio](https://Taiwotimman.github.io/taiwo-portfolio)**
@@ -11,7 +8,13 @@
 
 ## 👤 About
 
-Licensed physiotherapist and data analyst specialising in population health informatics, EHR analytics, predictive modelling, and AI data evaluation. Pursuing M.Sc. in Neurological Physiotherapy at the University of Ibadan.
+Healthcare Data Analyst and Clinical Researcher with a background in Physiotherapy and proven experience in delivering data-driven solutions that improve patient outcomes and operational efficiency. Skilled in experimentation, Statistical modeling and dashboarding, with a strong ability to translate complex data into clear and actionable insights for clinical and business stakeholders. Proficient in SQL, Python, Power BI, Excel and SPSS with domain expertise spanning across clinical rehabilitation, neuroscience, outpatient operations and public health analytics. 
+
+## 🌐 Portfolio Website
+
+**[https://Taiwotimman.github.io/taiwo-portfolio](https://Taiwotimman.github.io/taiwo-portfolio)**
+
+---
 
 | | |
 |---|---|
@@ -22,36 +25,9 @@ Licensed physiotherapist and data analyst specialising in population health info
 
 ---
 
-## 🗂 Repository Structure
-
-```
-taiwo-portfolio/
-│
-├── index.html                          ← Main portfolio homepage
-│
-├── projects/
-│   └── population-health/              ← Project 1 (live)
-│       ├── dashboard/
-│       │   └── index.html              ← Interactive surveillance dashboard
-│       ├── data/
-│       │   ├── generate_data.py        ← Synthetic EHR data generator
-│       │   ├── analysis.py             ← Logistic regression + equity analysis
-│       │   ├── population_health_data.csv
-│       │   ├── model_results.json
-│       │   ├── equity_report.json
-│       │   └── summary_stats.json
-│       ├── sql/
-│       │   └── population_health_queries.sql
-│       └── README.md
-│
-└── README.md                           ← This file
-```
-
----
-
 ## 📁 Projects
 
-### 01 · Population Health Readmission Risk Intelligence ✅ LIVE
+### 01 · Population Health Readmission Risk Dashboard ✅ LIVE
 
 An end-to-end population health analytics project:
 - **2,000** synthetic EHR discharge records with ICD-10 classification
@@ -61,8 +37,8 @@ An end-to-end population health analytics project:
 - **8 production-grade SQL queries** with CTEs and window functions
 - **Interactive 4-tab dashboard** embedded in portfolio
 
-→ [View Dashboard](projects/population-health/dashboard/index.html)  
-→ [View Project README](projects/population-health/README.md)
+→ [View Dashboard](https://taiwotimman.github.io/pop-health-folder)  
+→ [View Repo & README](https://github.com/Taiwotimman/pop-health-folder)
 
 ---
 
@@ -74,22 +50,13 @@ Power BI dashboard and logistic regression model from Lagoon Hospital contract.
 
 ### 03 · Diabetes Risk Modelling & Behavioural Intervention _(Coming Soon)_
 
-Public health intervention study from Obafemi Awolowo University.
+Public health study from Obafemi Awolowo University.
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 Tools
 
-`Python` `SQL` `R` `SPSS` `scikit-learn` `pandas` `Power BI` `DAX` `Chart.js` `ICD-10` `REDCap` `Qualtrics`
-
----
-
-## 📄 How to Add a New Project
-
-1. Create a new folder under `projects/your-project-name/`
-2. Add a `dashboard/index.html` (self-contained HTML)
-3. Add a `README.md` for the project
-4. In the main `index.html`, copy one of the `.project-card` blocks and update the content and `src` path in the iframe
+`Python` `SQL` `R` `SPSS` `Power BI` `NHS Digital` `Chart.js` `REDCap` `Qualtrics` `Excel`
 
 ---
 
