@@ -18,7 +18,6 @@ Licensed physiotherapist and data analyst specialising in population health info
 | 📍 Location | Nigeria · Remote / Open to Contract |
 | 📧 Email | Taiwotobiomoyeni@gmail.com |
 | 💼 LinkedIn | [linkedin.com/in/taiwo-omoyeni-830a07a7](https://www.linkedin.com/in/taiwo-omoyeni-830a07a7) |
-| 𝕏 Twitter | [x.com/TaiwoTimma96364](https://x.com/TaiwoTimma96364) |
 | 💻 GitHub | [github.com/Taiwotimman](https://github.com/Taiwotimman) |
 
 ---
